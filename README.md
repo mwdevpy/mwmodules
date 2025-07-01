@@ -9,7 +9,7 @@ MWModules - это набор пользовательских модулей д
 ## Установка
 
 ### Метод 1: Через команду в Telegram
-.dlm https://raw.githubusercontent.com/mwdevpy/mwmodules/main/[название_модуля].py
+.dlm https://raw.githubusercontent.com/mwdevpy/mwmodules/refs/heads/main/modules/[название_модуля].py
 
 ### Метод 2: Ручная установка
 1. Скачайте нужный модуль из репозитория
