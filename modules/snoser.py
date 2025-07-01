@@ -1,5 +1,5 @@
 # meta developer: @mwmodules 
-
+# Модуль писал: @mrdepnul
 import asyncio
 import aiohttp
 import logging
