@@ -49,8 +49,8 @@ class MWAPIModule(loader.Module):
                       "📝 Создайте аккаунт на MW API\n\n"
                       "🔹 Нажмите кнопку \"Регистрация\" ниже\n"
                       "🔹 Заполните форму регистрации\n"
-                      "🔹 Используйте действительный email\n\n"
-                      "⚠️ <b>Важно:</b> Email понадобится для тест-периода",
+                      "🔹 Запомните ваш username в биллинге\n\n"
+                      "⚠️ <b>Важно:</b> Username понадобится для тест-периода",
         "setup_step2": "2️⃣ <b>Получение API ключа</b>\n\n"
                       "🔑 Создайте токен в консоли\n\n"
                       "🔹 Откройте консоль токенов\n"
@@ -66,10 +66,10 @@ class MWAPIModule(loader.Module):
         "setup_step4": "4️⃣ <b>Активация тест-периода</b>\n\n"
                       "🎁 Получите 15₽ для тестирования\n\n"
                       "🔹 Скопируйте команду ниже\n"
-                      "🔹 Добавьте ваш email после команды\n"
+                      "🔹 Добавьте ваш username после команды\n"
                       "🔹 Отправьте команду в чат\n\n"
-                      "📝 <b>Формат:</b> <code>.mwtest ваш@email.com</code>\n\n"
-                      "⚠️ <b>Важно:</b> Используйте email из регистрации",
+                      "📝 <b>Формат:</b> <code>.mwtest ваш_username</code>\n\n"
+                      "⚠️ <b>Важно:</b> Используйте username из биллинга",
         "test_period_info": "🎁 <b>Тест-период MW API</b>\n\n"
                            "📝 <b>Что вы получите:</b>\n"
                            "• 15₽ на баланс для тестирования\n"
@@ -77,11 +77,11 @@ class MWAPIModule(loader.Module):
                            "• Возможность оценить качество сервиса\n\n"
                            "⚠️ <b>Важно:</b>\n"
                            "• Тест-период можно получить только 1 раз\n"
-                           "• Требуется email из биллинга\n\n"
+                           "• Требуется username из биллинга\n\n"
                            "💡 Нажмите \"Продолжить\" для получения",
-        "test_period_email": "📧 <b>Введите ваш email</b>\n\n"
-                            "💡 Укажите email, который вы использовали при регистрации в биллинге MW\n\n"
-                            "⚠️ Email должен быть действительным",
+        "test_period_email": "👤 <b>Введите ваш username</b>\n\n"
+                            "💡 Укажите username, который вы использовали при регистрации в биллинге MW\n\n"
+                            "⚠️ Username должен быть действительным",
         "test_period_sent": "✅ <b>Запрос отправлен!</b>\n\n"
                            "📨 Ваш запрос на тест-период отправлен администратору\n\n"
                            "⏳ Ожидайте подтверждения\n"
@@ -94,7 +94,7 @@ class MWAPIModule(loader.Module):
                            "3️⃣ Пусть он отправит это сообщение администратору\n\n"
                            "📱 <b>Сообщение для отправки:</b>\n\n"
                            "<code>{}</code>\n\n"
-                           "⚠️ <b>Важно:</b> Укажите вашу почту в сообщении",
+                           "⚠️ <b>Важно:</b> Укажите ваш username в сообщении",
         "test_period_already": "⚠️ <b>Вы уже запрашивали тест-период</b>\n\n"
                               "💡 Тест-период можно получить только один раз",
         "quota_exceeded": "💰 <b>Квота токена исчерпана</b>\n\n"
@@ -412,7 +412,7 @@ class MWAPIModule(loader.Module):
 
     @loader.command()
     async def mwtest(self, message):
-        """<email> - Получить тест-период (только 1 раз)"""
+        """<username> - Получить тест-период (только 1 раз)"""
         args = utils.get_args_raw(message)
         user_id = str(message.from_id)
 
@@ -421,12 +421,12 @@ class MWAPIModule(loader.Module):
             return
 
         if not args:
-            await utils.answer(message, "❌ <b>Укажите email</b>\n\n💡 Использование: <code>.mwtest ваш@email.com</code>")
+            await utils.answer(message, "❌ <b>Укажите username</b>\n\n💡 Использование: <code>.mwtest ваш_username</code>")
             return
 
-        email = args.strip()
-        if "@" not in email or "." not in email:
-            await utils.answer(message, "❌ <b>Неверный формат email</b>\n\n💡 Email должен содержать @ и точку")
+        billing_username = args.strip()
+        if not billing_username:
+            await utils.answer(message, "❌ <b>Username не может быть пустым</b>")
             return
 
         try:
@@ -439,8 +439,8 @@ class MWAPIModule(loader.Module):
                 f"🎁 <b>Запрос на тест-период MW API</b>\n\n"
                 f"👤 <b>Пользователь:</b> {user_link}\n"
                 f"🆔 <b>ID:</b> <code>{user_id_int}</code>\n"
-                f"📱 <b>Username:</b> {username}\n"
-                f"📧 <b>Email:</b> <code>{email}</code>\n\n"
+                f"📱 <b>Username TG:</b> {username}\n"
+                f"👤 <b>Username в биллинге:</b> <code>{billing_username}</code>\n\n"
                 f"💰 <b>Запрос:</b> 15₽ на баланс для тестирования"
             )
 
@@ -448,7 +448,7 @@ class MWAPIModule(loader.Module):
                 await message.client.send_message("mwoffice", admin_message)
 
                 self._test_period_requests[user_id] = {
-                    "email": email,
+                    "billing_username": billing_username,
                     "timestamp": message.date.timestamp()
                 }
                 self.db.set("MWAPI", "test_period_requests", self._test_period_requests)
@@ -460,8 +460,8 @@ class MWAPIModule(loader.Module):
                     request_text = (
                         f"🎁 Запрос на тест-период MW API\n\n"
                         f"ID: {user_id_int}\n"
-                        f"Username: {username}\n"
-                        f"Email: {email}\n"
+                        f"Username TG: {username}\n"
+                        f"Username в биллинге: {billing_username}\n"
                         f"Запрос: 15₽ на баланс\n\n"
                         f"Примечание: У пользователя спамбан"
                     )
